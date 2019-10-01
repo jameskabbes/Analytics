@@ -8,14 +8,161 @@ import seaborn as sns
 
 import collections
 #sorted
-
 import numpy as np
+
+import sys
+# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
+sys.path.append('''C:/Users/james/Dropbox/Python/Analytics''')
+import CustomPandas as cpd
+
+
+
+def base_import():
+
+    import sys
+    # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
+    sys.path.append('''C:/Users/james/Dropbox/Python/Analytics''')
+    import CustomPandas as cpd
 
 def get_df(file_name, delim = ','):
     '''Read csv file from local directory: return dataframe'''
 
     df = pd.read_csv(file_name, header = 0,  sep = delim)
     return df
+
+def df_change_row_ind_col_value(df, index, column, new_val):
+    df.loc[index, column] = new_val
+    return df
+
+def value_counts_in_df(df, col):
+
+    return df[col].value_counts()
+
+def map_df_column_to_dict(df, col, dict, new_col):
+
+    df[new_col] = df[col].map(dict)
+    return df
+
+
+def move_last_column_to_first(df):
+
+    cols = df.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    df = df[cols]
+    return df
+
+def get_column(ws, col_index, nested = True):
+
+    '''gets a column from the ws'''
+    col = []
+    if nested:
+        for row in get_rows(ws):
+            col.append([ row[col_index] ] )
+
+    else:
+        for row in get_rows(ws):
+            col.append( row[col_index] )
+    return col
+
+def fill_nans(df, value_to_fill):
+
+    df = df.fillna(value_to_fill)
+    return df
+
+def get_date_and_time():
+
+    return datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+
+def df_replace(df, value_to_change, to_fill):
+
+    df = df.replace(value_to_change, to_fill)
+    return df
+
+def and_gate_many_cols(df, columns, col_name):
+
+    col1 = columns[0]
+    col2 = columns[1]
+    cols_added = []
+    for i in range(len(columns) - 2):
+
+        bool_num = 'bool' + str(i)
+        join = bool_num + ': ' + col1 + '/' + col2
+        cols_added.append(join)
+        df[join] = df[col1] & df[col2]
+
+        col1 = join
+        col2 = columns[2 + i]
+
+
+    df[col_name] = df[col1] & df[col2]
+    df = drop_these_cols(df, cols_added)
+    print ('cols added')
+    print (cols_added)
+    print ('after dropping')
+    #print (df)
+    return df
+
+
+def combine_all_string_columns(df, columns, new_column):
+
+    '''combines all columns contained in list found in df and renames it new column'''
+    col1 = columns[0]
+    col2 = columns[1]
+    cols_added = []
+    for i in range(len(columns) - 2):
+
+        join = 'join' + str(i)
+        cols_added.append(join)
+        df = combine_string_columns(df, col1, col2, join)
+
+        col1 = join
+        col2 = columns[2 + i]
+
+
+    #last join
+    df = combine_string_columns(df, col1, col2, new_column)
+    #print (df)
+    df = drop_these_cols(df, cols_added)
+    #print (df)
+    return df
+
+def drop_these_cols(df, cols):
+
+    '''drops cols from df'''
+    return df.drop(cols, axis = 1)
+
+def new_df_with_value_in_col(df, col, val, opposite = False):
+
+
+    if not opposite:
+        new_df = df.loc[df[col] == val]
+        return new_df
+
+    if opposite:
+        new_df = df.loc[df[col] != val]
+        return new_df
+
+
+
+def sort_df(df, columns, ascend = True, na_pos = 'last'):
+
+    df = df.sort_values(columns, ascending = ascend, na_position = na_pos)
+    return df
+
+
+def map_df_col_to_new_id(df, col, new_col_name, df2, id_col, map_col):
+
+    map_dict = dict_from_two_columns(df2, id_col, map_col)
+    df = map_df_column_to_dict(df, col, map_dict, new_col_name)
+    return df
+
+def dict_from_two_columns(df, key_col, val_col):
+
+    #In [9]: pd.Series(df.Letter.values,index=df.Position).to_dict()
+    #Out[9]: {1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e'}
+    a = pd.Series(df[val_col].values, index = df[key_col]).to_dict()
+    return a
+
 
 def replace_in_df(dataframe, column, to_find, to_replace):
 
