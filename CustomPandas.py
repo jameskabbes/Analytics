@@ -9,13 +9,9 @@ import seaborn as sns
 import collections
 #sorted
 import numpy as np
-
+import datetime
 import sys
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
-sys.path.append('''C:/Users/james/Dropbox/Python/Analytics''')
-import CustomPandas as cpd
-
-
 
 def base_import():
 
@@ -325,6 +321,13 @@ def list_of_index_values(df):
 
     '''Return a list of all the index values found in df'''
     return df.index.tolist()
+
+def check_column_in_list(df, column, list, new_column):
+    '''returns a dataframe with a boolean value in new column if the row had one of those value or not'''
+
+    df[new_column] = df[column].isin(list)
+    return df
+
 
 def append_to_df_with_df(og_df, new_df, reset_ind = True):
     '''Appends 'og_df' with 'new_df' and returns new'''
