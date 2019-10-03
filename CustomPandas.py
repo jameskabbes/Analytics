@@ -47,18 +47,6 @@ def move_last_column_to_first(df):
     df = df[cols]
     return df
 
-def get_column(ws, col_index, nested = True):
-
-    '''gets a column from the ws'''
-    col = []
-    if nested:
-        for row in get_rows(ws):
-            col.append([ row[col_index] ] )
-
-    else:
-        for row in get_rows(ws):
-            col.append( row[col_index] )
-    return col
 
 def fill_nans(df, value_to_fill):
 
