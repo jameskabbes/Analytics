@@ -9,7 +9,7 @@ import seaborn as sns
 import collections
 #sorted
 import numpy as np
-import datetime
+from datetime import datetime
 import sys
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
 
@@ -47,6 +47,10 @@ def move_last_column_to_first(df):
     df = df[cols]
     return df
 
+def prep_datetime(df, time_col, dt_col, format = '%Y-%m:-%d %H:%M:%S'):
+
+    df[dt_col] = df[time_col].apply(lambda x: datetime.strptime(x, format) )
+    return df
 
 def fill_nans(df, value_to_fill):
 
@@ -192,22 +196,6 @@ def keep_these_rows(df, rows):
 def drop_these_rows(df, rows):
     '''Returns dataframe without 'rows' based on index value'''
     return df.drop(rows)
-
-def sort_df(df, columns, ascend, na_pos = 'last', reset_ind = True):
-
-    '''Sorts a dataframe based on columns and a boolean list 'ascend' on whether should a ascend or descend' '''
-    ###Permanently sort
-
-    assert len(columns) == len(ascend)
-    #sorts by first column first, then by second column
-
-    df.sort_values(columns, ascending = ascend, na_position = na_pos)
-    #df = df.sort_values(['Age','Publications'], ascending = [1,1], na_position = na_pos)
-
-    #print (df)
-    if reset_ind:
-        df = df.reset_index()
-    return df
 
 def assign_column_based_on_existing(df, columns, scenarios):
 
