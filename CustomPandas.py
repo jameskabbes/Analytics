@@ -257,6 +257,30 @@ def rename_cols(df, existing, new):
 
     return df
 
+def multiple_filters(df, columns, two_dim_list):
+
+    '''columns = ['Age','Name']
+    two_dim_list = [ [21, 22], ['James','Michael'] ]
+
+    this function sends back the df with age values of 21 and 22 and name values of james and michael
+    '''
+
+    new_df = df
+
+    for col_num in range(len(columns)):
+
+        col = columns[col_num]
+        dfs = []
+        for criteria in two_dim_list[col_num]:
+
+            df = new_df[ new_df[col] == criteria ]
+            dfs.append(df)
+
+        if dfs != []:
+            new_df = pd.concat(dfs)
+
+    return new_df
+
 def ceiling_filter(df, max_val, column):
     '''Returns df with values below 'max_val' found in 'column' '''
     df = df[  df[column] <= max_val  ]
@@ -348,6 +372,11 @@ def violin_plot(df, column, filter_column = None, min_val = None, max_val = None
     else:
         a = sns.violinplot(y = df[column], inner = 'quartiles')
     plt.show()
+
+def get_unique_values(df, col):
+    return df[col].unique()
+
+
 
 def dict_to_df(dictionary):
 
