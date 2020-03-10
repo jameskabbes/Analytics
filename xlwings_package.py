@@ -24,16 +24,26 @@ def base_import():
     sys.path.append('''C:/Users/james/Dropbox/Python/xlwings_helper''')
     import xlwings_package as xwp
 
-
 def get_book(book):
 
-    return xw.Book(book)
+    try:
+        return xw.Book(book)
+    except:
+        b = xw.Book(None)
+        b.save(book)
+        return b
 
 def get_ws(book_name, sheet = 'Sheet1'):
 
     sheet = remove_slash_from_ws_name(sheet)
     wb = xw.Book(book_name)
-    ws = wb.sheets[sheet]
+
+    try:
+        ws = wb.sheets[sheet]
+    except:
+        add_sheet(sheet, wb)
+        ws = wb.sheets[sheet]
+
     return ws
 
 def remove_slash_from_ws_name(string, replace = True, char = '-'):
@@ -97,7 +107,6 @@ def get_df_from_ws(ws):
 
     df = df_from_rows( get_rows(ws))
     return df
-
 
 
 def write_df_col_to_ws(ws, df, col_index, col_name):
@@ -228,6 +237,13 @@ def add_sheet(sheet_name, work_book):
     except:
         pass
 
+def delete_sheet(ws):
+
+    try:
+        ws.delete()
+    except:
+        pass
+
 def combine_string_columns(df, col1, col2, new_column):
 
     '''Returns df with new column that has a compiled string of col1 and col2'''
@@ -240,7 +256,6 @@ def get_wb(book_name):
     return xw.Book(book_name)
 
 def write_df_to_ws(ws, df):
-
 
     header = df.columns.tolist()
     rows = [ header ]
