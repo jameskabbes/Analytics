@@ -11,6 +11,7 @@ import collections
 import numpy as np
 from datetime import datetime
 import sys
+from dateutil.relativedelta import relativedelta
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
 
 def base_import():
@@ -131,6 +132,128 @@ def new_df_with_value_in_col(df, col, val, opposite = False):
         return new_df
 
 
+def split_df_into_equal_time(df, time_chunk, datetime_col, format = 'seconds'):
+
+    '''returns dfs after being split into separate dfs by a time separator
+    example: starting from time 0, separate into chunks of 3 weeks at a time
+
+    ISOTIME
+    '''
+
+    if format == 'minutes':
+        time_chunk *= 60
+    if format == 'hours':
+        time_chunk *= 3600
+    if format == 'days':
+        time_chunk *= (3600 * 24)
+    if format == 'weeks':
+        time_chunk *= (3600 * 24 * 7)
+
+    start_time = df.loc[ df.index[0], datetime_col]
+    end_time = df.loc[ df.index[-1], datetime_col]
+    time = start_time
+    new_time = start_time
+
+    dfs = []
+
+    while new_time < end_time:
+
+        #add the respective delta time to the new time
+        if format == 'months':
+            new_time = time + relativedelta(months = time_chunk)
+        elif format == 'years':
+            new_time = time + relativedelta(years = time_chunk)
+        else:
+            new_time = time + datetime.timedelta(seconds = time_chunk)
+
+        #filter where time < df < new_time
+        new_df = filter_df_by_dates(df, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = False)
+
+        if new_time >= end_time:
+            new_df = filter_df_by_dates(df, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = True)
+
+        time = new_time
+        dfs.append(new_df)
+
+    return dfs
+
+def split_by_time_filter(df, how = 'hours', new_poss_values = []):
+
+    '''returns dfs which have been sifted based on hours/days/months etc
+    refer to params.py -> time_splits for reference
+
+    df1                      df2
+    customer     hour        customer     hour
+    0            0           0            1
+    1            0           1            1
+    2            0           2            1
+    '''
+
+    time_splits = {'data_dict': ['possible_values','xlabels','df_col'],
+    'seconds': [list(range(60)), list(range(60)), 'SECOND'],
+    'minutes': [list(range(60)), list(range(60)), 'MINUTE'],
+    'hours': [list(range(24)), list(range(24)), 'HOUR'],
+    'day_nums': [list(range(1,32)), list(range(1, 32)), 'DAY'],
+    'days': [list(range(7)), ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], 'WEEKDAY'],
+    'weeks': [list(range(1,53)), list(range(1,53)), 'WEEK'],
+    'months': [list(range(1,13)), ['January', 'February','March','April','May','June','July','August','September','October','November','December'], 'MONTH'],
+    'years': [list(range(0, 3000)), list(range(0, 3000)), 'YEAR' ]
+    }
+
+    possible_values = time_splits[how][0] #list
+    xlabels = time_splits[how][1] #list
+    how_col = time_splits[how][2] #string
+
+    dfs = []
+    if new_poss_values != []:
+        possible_values = new_poss_values
+
+    for value in possible_values:
+
+        new_df = df[ df[how_col] == value  ]
+        dfs.append(new_df)
+
+    return dfs
+
+
+def filter_df_by_dates(df, lower_datetime = None, upper_datetime = None, date_col = params.time_col, date_col_dt = params.datetime_col, low_inc = True, up_inc = False):
+
+    '''takes in a pandas df and returns one being filtered by lower and upper dates'''
+
+    low = df.loc[df.index[0], date_col_dt ]
+    high = df.loc[df.index[-1], date_col_dt ]
+
+    if lower_datetime == None:
+        print ('Enter info for lower datetime')
+        lower_datetime = get_datetime_input()
+
+        #if it goes below the bound
+        if lower_datetime < low:
+            lower_datetime = low
+
+    if upper_datetime == None:
+        print ('Enter info for upper datetime')
+        upper_datetime = get_datetime_input()
+
+        #if it goes above the bound
+        if upper_datetime > high:
+            upper_datetime = high
+
+    if upper_datetime < lower_datetime:
+        upper_datetime, lower_datetime = lower_datetime, upper_datetime
+        print ('switching upper and lower datetimes')
+
+    if low_inc:
+        filtered = df[ df[date_col_dt] >= lower_datetime]
+    else:
+        filtered = df[ df[date_col_dt] > lower_datetime]
+
+    if up_inc:
+        filtered = filtered[  filtered[date_col_dt] <= upper_datetime ]
+    else:
+        filtered = filtered[  filtered[date_col_dt] < upper_datetime ]
+
+    return filtered
 
 def sort_df(df, columns, ascend = True, na_pos = 'last'):
 
