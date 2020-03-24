@@ -1,18 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def ramp(nested_values, dt = .1, legend = []):
+def ramp(nested_values, legend = [], xlabel = None, ylabel = None):
 
-    cutoffs = np.linspace(0, 100, 100 / dt)
-    print (cutoffs)
 
     for i in nested_values:
 
+        dt = 1 / len(i)
+        cutoffs = np.linspace(0, 100, 100 / dt)
         vals = np.array(i)
         vals = np.sort(vals)
 
         n = len(vals)
-
         x = []
 
         for prop in cutoffs:
@@ -32,10 +31,9 @@ def ramp(nested_values, dt = .1, legend = []):
             legend.append( str(i))
 
     plt.legend(legend)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.show()
-
-
-
 
 
 
@@ -86,7 +84,7 @@ if __name__ == '__main__':
     print (values3)
 
 
-    ramp( [values1, values2, values3], legend = ['A','B','C'])
+    ramp( [values1, values2, values3], legend = ['A','B','C'], ylabel = '% Below X')
 
 
 #exit
