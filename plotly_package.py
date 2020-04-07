@@ -1,5 +1,6 @@
 import plotly as pl
 import plotly.graph_objects as pgo
+from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 
@@ -21,7 +22,18 @@ def set_axis_layout(**axis_kwargs):
 
 def set_layout(**layout_kwargs):
 
-    layout = pgo.Layout(**layout_kwargs)
+    def example():
+        xaxis = set_axis_layout(title = 'X Axis')
+        yaxis = set_axis_layout(title = 'Y Axis')
+        layout = pgo.Layout(xaxis = xaxis, yaxis = yaxis, title = 'Example Title')
+        return layout
+
+    layout = check_example(example, **layout_kwargs)
+    layout_kwargs, non_layout_kwargs = sep_kwargs(**layout_kwargs)
+
+    if layout == None:
+        layout = pgo.Layout(**layout_kwargs)
+
     return layout
 
 def show_fig(data, **plot_kwargs):
@@ -29,6 +41,109 @@ def show_fig(data, **plot_kwargs):
     layout = set_layout(**plot_kwargs)
     fig = pgo.Figure(data = data, layout = layout)
     fig.show()
+
+def make_subplot_fig(**plot_kwargs):
+
+    fig = make_subplots(**plot_kwargs)
+    return fig
+
+def add_to_subplot_fig(fig, trace, **kwargs):
+
+    fig.add_trace(trace, **kwargs)
+    return fig
+
+def update_layout_subplot(fig, **kwargs):
+
+    fig.update_layout(**kwargs)
+    return fig
+
+def add_xaxis_subplot(fig, **kwargs):
+
+    fig.update_xaxes(**kwargs)
+    return fig
+
+def add_yaxis_subplot(fig, **kwargs):
+
+    fig.update_yaxes(**kwargs)
+    return fig
+
+def add_all_to_subplot(data, data_kwargs, layout_kwargs, x_axis_kwargs, y_axis_kwargs, **plot_kwargs):
+
+    def example():
+
+        x = np.linspace(1, 6, 6)
+        x_noise = x + (np.random.rand(6) * .1)
+        trace1 = scatter(x, x**2, name = 'Trace 1')
+        trace2 = scatter(x, 10*x_noise**2, name = 'Trace 2')
+        trace3 = scatter(x, x**1.5, name = 'Trace 3')
+        trace4 = scatter(x, 10*x_noise**1.5, name = 'Trace 4')
+
+        data = [trace1, trace2, trace3, trace4]
+        data_kwargs = [ dict( secondary_y = False, row = 1, col = 1), dict( secondary_y = True, row = 1, col = 1),
+        dict( secondary_y = False, row = 1, col = 2), dict( secondary_y = True, row = 1, col = 2) ]
+
+        xaxis = [ {'title_text': 'this will not appear', 'row': 1, 'col': 1},{'title_text': 'Title 1 x axis', 'row': 1, 'col' : 1},{'title_text': 'this will not appear', 'row': 1, 'col' : 2},{'title_text': 'Title 2 x axis', 'row': 1, 'col' : 2}  ]
+        yaxis = [ {'title_text': 'Secondary Axis 1', 'row': 1, 'col': 1, 'secondary_y': True},{'title_text': 'Y axis 1', 'row': 1, 'col' : 1, 'secondary_y' : False},{'title_text': 'Secondary Axis 2', 'row': 1, 'col' : 2, 'secondary_y': True},{'title_text': 'Y axis 2', 'row': 1, 'col' : 2, 'secondary_y': False} ]
+
+        layout_kwargs = dict( title = '1x2 Subplot' )
+        plot_kwargs = dict( rows = 1, cols = 2, specs = [  [{'secondary_y': True}, {'secondary_y': True}]  ] )
+
+        return data, data_kwargs, layout_kwargs, xaxis, yaxis, plot_kwargs
+
+    if 'example' in plot_kwargs:
+        if plot_kwargs['example']:
+            data, data_kwargs, layout_kwargs, x_axis_kwargs, y_axis_kwargs, plot_kwargs = example()
+            plot_kwargs['example'] = 'filler val'
+
+        del plot_kwargs['example']
+
+    fig = make_subplot_fig(**plot_kwargs)
+
+    if type(data[0]) == list:
+        nested = True
+    else:
+        nested = False
+
+    if nested:
+        rows = plot_kwargs['rows']
+        cols = plot_kwargs['cols']
+        for i in range(rows):
+            for j in range(cols):
+
+                kwargs = data_kwargs[i][j]
+                trace = data[i][j]
+
+                if 'row' not in kwargs:
+                    kwargs.update( dict(row = i + 1))
+                if 'col' not in kwargs:
+                    kwargs.update( dict(col = j + 1))
+
+                print (i,j)
+                print (x_axis_kwargs[i][j])
+                print (y_axis_kwargs[i][j])
+
+
+                fig = add_to_subplot_fig(fig, trace, **kwargs)
+                fig = add_xaxis_subplot(fig, **x_axis_kwargs[i][j], row = i+1, col = j+1)
+                fig = add_yaxis_subplot(fig, **y_axis_kwargs[i][j], row = i+1, col = j+1)
+
+    else:
+        for i in range(len(data)):
+            kwargs = data_kwargs[i]
+            trace = data[i]
+
+            print (i)
+            print (x_axis_kwargs[i])
+            print (y_axis_kwargs[i])
+
+            fig = add_to_subplot_fig(fig, trace, **kwargs)
+            fig = add_xaxis_subplot(fig, **x_axis_kwargs[i])
+            fig = add_yaxis_subplot(fig, **y_axis_kwargs[i])
+
+    fig = update_layout_subplot(fig, **layout_kwargs)
+    fig.show()
+    return fig
+
 
 def sep_kwargs(**kwargs):
 
@@ -86,7 +201,7 @@ def scatter(x, y, **kwargs):
     def example():
         x = np.linspace(0, 9, 10)
         y = x ** 2
-        data = pgo.Bar(x = x, y = y)
+        data = pgo.Scatter(x = x, y = y)
         return data
 
     data = check_example(example, **kwargs)
@@ -215,29 +330,15 @@ def scattergeo(lon, lat, **kwargs):
 
 def plot(type, *args, **kwargs):
 
-    if type == 'bar':
-        func = bar
+    types = ['bar','scatter','line','heatmap','histogram','box','scattergeo']
+    funcs = [ bar,  scatter,  line,  heatmap,  histogram,  box,  scattergeo ]
 
-    elif type == 'scatter':
-        func = scatter
+    try:
+        ind = types.index(type)
+    except:
+        print ('No known function')
 
-    elif type == 'line':
-        func = line
-
-    elif type == 'heatmap':
-        func = heatmap
-
-    elif type == 'histogram':
-        func = histogram
-
-    elif type == 'box':
-        func = box
-
-    elif type == 'scattergeo':
-        func = scattergeo
-
-    else:
-        print ('Type ' + str(type) + ' unknown')
+    func = funcs[ind]
 
     trace = func(*args, **kwargs)
     return trace
@@ -291,14 +392,23 @@ def plot_mult_main(type, data_args, data_kwargs, **plotting_kwargs):
 
 if __name__ == '__main__':
 
-    trace = plot('scattergeo', [], [], example = True)
-    show_fig(trace)
+    ##mult axes
 
 
+    x = np.linspace(1, 6, 6)
+    x_noise = x + (np.random.rand(6) * .1)
+    trace1 = scatter(x, x**2, name = 'Trace 1')
+    trace2 = scatter(x, 10*x_noise**2, name = 'Trace 2')
+    trace3 = scatter(x, x**1.5, name = 'Trace 3')
+    trace4 = scatter(x, 10*x_noise**1.5, name = 'Trace 4')
 
+    data = [ [trace1, trace2], [trace3, trace4] ]
+    layout_kwargs = dict( title = '2x2 Subplot' )
 
+    xaxis = [ [{'title_text': 'Title 1 x axis'},{'title_text': 'Title 2 x axis'}], [{'title_text': 'Title 3 x axis'},{'title_text': 'Title 4 x axis'}] ]
+    yaxis = [ [{'title_text': 'Y axis 1'},{'title_text': 'Y axis 2'}], [{'title_text': 'Y axis 3'},{'title_text': 'Y axis 4'}] ]
 
-
+    add_all_to_subplot( data, [ [{},{}], [{},{}] ] , layout_kwargs, xaxis, yaxis, rows = 2, cols = 2, subplot_titles = ('Plot 1','Plot 2','Plot 3','Plot 4'), example = False )
 
 
 
