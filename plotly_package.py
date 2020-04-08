@@ -6,6 +6,40 @@ import numpy as np
 
 kwargs_to_remove = ['example','show_plot']
 
+
+class Fig:
+
+    def __init__(self, **kwargs):
+        self.fig = pgo.Figure(**kwargs)
+        self.data = []
+        self.layout = []
+
+        if 'data' in kwargs:
+            self.data = kwargs['data']
+        if 'layout' in kwargs:
+            self.layout = kwargs['data']
+
+    def new_data(self, new_data):
+        self.data = new_data
+
+    def add_trace(self, new_trace):
+        self.data.append(new_trace)
+
+    def gen_layout(self, **kwargs, update = True):
+        layout = pgo.Layout(**kwargs)
+        if update:
+            self.update_layout(layout)
+
+    def update_layout(self, layout):
+        self.layout = layout
+
+    def show(self):
+        self.fig.show()
+
+    def export(self, filename):
+        write_image(self.fig, filename)
+
+
 def set_axis_layout(**axis_kwargs):
 
     def example():
@@ -41,6 +75,11 @@ def show_fig(data, **plot_kwargs):
     layout = set_layout(**plot_kwargs)
     fig = pgo.Figure(data = data, layout = layout)
     fig.show()
+    write_image(fig, 'asdf.png')
+
+def write_image(fig, filename):
+
+    fig.write_image(filename)
 
 def make_subplot_fig(**plot_kwargs):
 
@@ -328,6 +367,7 @@ def scattergeo(lon, lat, **kwargs):
     return data
 
 
+
 def plot(type, *args, **kwargs):
 
     types = ['bar','scatter','line','heatmap','histogram','box','scattergeo']
@@ -394,7 +434,7 @@ if __name__ == '__main__':
 
     ##mult axes
 
-
+    '''
     x = np.linspace(1, 6, 6)
     x_noise = x + (np.random.rand(6) * .1)
     trace1 = scatter(x, x**2, name = 'Trace 1')
@@ -409,9 +449,9 @@ if __name__ == '__main__':
     yaxis = [ [{'title_text': 'Y axis 1'},{'title_text': 'Y axis 2'}], [{'title_text': 'Y axis 3'},{'title_text': 'Y axis 4'}] ]
 
     add_all_to_subplot( data, [ [{},{}], [{},{}] ] , layout_kwargs, xaxis, yaxis, rows = 2, cols = 2, subplot_titles = ('Plot 1','Plot 2','Plot 3','Plot 4'), example = False )
+    '''
 
-
-
+    bar([1,2,3,4], example = True, show_plot = True)
 
 
 
