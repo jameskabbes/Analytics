@@ -327,11 +327,44 @@ def scattergeo(lon, lat, **kwargs):
 
     return data
 
+def ramp(nested_values, **kwargs):
+
+    data = []
+
+    for i in nested_values:
+
+        dt = 1 / len(i)
+        cutoffs = np.linspace(0, 100, 100 / dt)
+        vals = np.array(i)
+        vals = np.sort(vals)
+
+        n = len(vals)
+        x = []
+
+        for prop in cutoffs:
+
+            ind = int(prop * n / 100)
+            filtered = vals[ : ind]
+
+            try:
+                x.append( filtered[-1] )
+            except:
+                x.append( vals[0])
+
+        trace = line(x, cutoffs, **kwargs)
+        data.append(trace)
+
+    if 'show_plot' in kwargs:
+        if kwargs['show_plot']:
+            show_fig(data)
+
+    return data
+
 
 def plot(type, *args, **kwargs):
 
-    types = ['bar','scatter','line','heatmap','histogram','box','scattergeo']
-    funcs = [ bar,  scatter,  line,  heatmap,  histogram,  box,  scattergeo ]
+    types = ['bar','scatter','line','heatmap','histogram','box','scattergeo','ramp']
+    funcs = [ bar,  scatter,  line,  heatmap,  histogram,  box,  scattergeo,  ramp ]
 
     try:
         ind = types.index(type)
