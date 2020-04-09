@@ -1,4 +1,4 @@
-import plotly_package2 as plp
+import plotly_package as plp
 import pandas as pd
 import numpy as np
 
@@ -41,10 +41,7 @@ def ramp(nested_values, example = False, show_plot = False, **kwargs):
         fig = plp.Fig(data = data)
         xaxis = plp.Axis(title = 'Values').template
         yaxis = plp.Axis(title = 'Percent of Inputs < X').template
-        fig.update_layout(xaxis = xaxis, yaxis = yaxis)
+        fig.update_layout(example = True, xaxis = xaxis, yaxis = yaxis)
         fig.show()
 
     return data
-
-
-ramp([], example = True, show_plot = True)
