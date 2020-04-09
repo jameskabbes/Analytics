@@ -216,7 +216,7 @@ def split_by_time_filter(df, how = 'hours', new_poss_values = []):
     return dfs
 
 
-def filter_df_by_dates(df, lower_datetime = None, upper_datetime = None, date_col = params.time_col, date_col_dt = params.datetime_col, low_inc = True, up_inc = False):
+def filter_df_by_dates(df,  date_col, date_col_dt, lower_datetime = None, upper_datetime = None, low_inc = True, up_inc = False):
 
     '''takes in a pandas df and returns one being filtered by lower and upper dates'''
 

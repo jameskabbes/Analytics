@@ -25,7 +25,7 @@ class Fig:
     def add_trace(self, new_trace):
         self.data.append(new_trace)
 
-    def gen_layout(self, **kwargs, update = True):
+    def gen_layout(self, update = True, **kwargs):
         layout = pgo.Layout(**kwargs)
         if update:
             self.update_layout(layout)

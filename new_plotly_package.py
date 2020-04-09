@@ -51,23 +51,6 @@ class Axis:
         return self.template
 
 
-trace1 = pgo.Bar(x = [1,2,3,4,5], y = [1,2,3,4,5], name = '12')
-trace2 = pgo.Bar(x = [1,2,3,4,5], y = [1,2,3,4,5], name = '23')
-
-fig = Fig(subplot = False, data = [trace1, trace2])
-x = Axis()
-x.add(title = 'X')
-x = x.return_temp()
-print (x)
-y = Axis(title = 'Y').return_temp()
-print (y)
-fig.update_layout(title = 'Yo this is a test',height = 800, width = 800, xaxis = x, yaxis = y)
-
-fig.show()
-fig.save()
-
-
-
 
 
 
