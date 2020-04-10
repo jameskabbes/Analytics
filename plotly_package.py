@@ -3,6 +3,7 @@ import plotly.graph_objects as pgo
 from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
+import random
 
 
 class Fig:
@@ -60,6 +61,114 @@ class Axis:
     def return_temp(self):
         return self.template
 
+class Color:
+
+    def __init__(self, type, tuple, example = False, **kwargs):
+
+        self.type = type
+
+        if tuple == None:
+            self.gen_random()
+
+        else:
+            self.color = tuple
+
+        self.error_check()
+        self.get_string()
+
+    def error_check(self):
+
+        supported = ['rgb', 'rgba', 'cmyk']
+        lens = [3, 4, 4]
+        mins = [ (0,0,0), (0,0,0,0), (0,0,0,0)  ]
+        maxs = [ (255,255,255), (255,255,255,1), (100,100,100,100) ]
+
+        if self.type in supported:
+
+            ind = supported.index(self.type)
+            self.n = lens[ind]
+
+            if len( self.color ) !=  lens[ind]:
+                print ('Invalid color ' + str(self.color) + ' for type ' + str(self.type))
+                print ('Expected length: ' + str(self.n))
+                exit()
+
+            for i in range(self.n):
+                if self.color[i] > maxs[ind][i] or self.color[i] < mins[ind][i]:
+                    print ('Invalid color ' + str(self.color) + ' for type ' + str(self.type))
+                    print ('out of range for max and mins')
+                    print ('MAX VALUES -> ' + str(maxs[ind]))
+                    print ('MIN VALUES -> ' + str(maxs[ind]))
+                    exit()
+
+
+        else:
+            print ('Color type ' + str(self.type) + ' not supported')
+            exit()
+
+    def get_string(self):
+
+        string = self.type
+        string += '('
+        for i in self.color:
+            string += ( str(i) + ',')
+        string = string[:-1]
+        string += ')'
+        self.string = string
+
+    def gen_random(self):
+
+        if self.type == 'rgb':
+            choices = list(range(256)) # 0 > 255
+            color = []
+            for i in range(3):
+                color.append( random.choice(choices) )
+
+        if self.type == 'rgba':
+            self.type = 'rgb'
+            self.gen_random()
+
+            self.type = 'rgba'
+            rgb = self.color
+            rgb.append( random.random() )
+            color = rgb
+
+        if self.type == 'cmyk':
+            chocies = list(range(0, 101))
+            color = []
+            for i in range(4):
+                color.append( random.choice(choices))
+
+        print (self.type)
+
+
+        self.color = color
+
+
+def get_colorway(type = 'rgb', n = 1, color_classes = []):
+
+    if color_classes == []:
+        for i in range(n):
+            #get random
+            color_classes.append( Color(type, None))
+
+    strings = []
+    for color in color_classes:
+        strings.append( color.string )
+
+    return strings
+
+def get_cont_color_range( color_classes, type = 'rgb' ):
+
+    props = np.linspace(0, 1, len(color_classes))
+    color_range = []
+
+    for i in range(len(color_classes)):
+        color = color_classes[i]
+        string = color.string
+        color_range.append( (props[i], string)  )
+
+    return color_range
 
 def gen_layout(example = True, **kwargs):
 
@@ -70,6 +179,7 @@ def gen_layout(example = True, **kwargs):
         height = 800, width = 1200, title = 'A Sweet Graph',
         xaxis = Axis(title = 'X AXIS').template,
         yaxis = Axis(title = 'Y AXIS').template,
+        colorway = get_colorway( 'rgb', color_classes = [Color('rgb', None)] )
         )
         comb_args.update(add_args)
 
@@ -163,7 +273,9 @@ def heatmap(example = False, show_plot = False, **kwargs):
         [2,3,4,5],
         [3,4,5,6],
         [4,5,6,7]]
-        add_args = dict( z = z )
+        colorscale = [ (0, 'rgb(255,255,255)'), (1, 'rgb(255,0,0)')]
+        add_args = dict( z = z, colorscale = colorscale )
+
         comb_args.update(add_args)
 
     comb_args.update(**kwargs)
@@ -243,4 +355,6 @@ if __name__ == '__main__':
 
     types = ['bar','scatter','line','heatmap','histogram','box','scattergeo']
     for type in types:
-        plot(type, example = True, show_plot = True)
+
+        fig = Fig( data = plot(type, example = True), layout = gen_layout() )
+        fig.show()

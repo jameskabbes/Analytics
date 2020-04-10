@@ -1,6 +1,7 @@
 import plotly_package as plp
 import pandas as pd
 import numpy as np
+import random
 
 def ramp(nested_values, example = False, show_plot = False, **kwargs):
 
@@ -45,3 +46,8 @@ def ramp(nested_values, example = False, show_plot = False, **kwargs):
         fig.show()
 
     return data
+
+
+
+
+print ()
