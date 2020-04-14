@@ -158,9 +158,10 @@ def get_colorway(type = 'rgb', n = 1, color_classes = []):
 
     return strings
 
-def get_cont_color_range( color_classes, type = 'rgb' ):
+def get_cont_color_range( color_classes, type = 'rgb', props = [] ):
 
-    props = np.linspace(0, 1, len(color_classes))
+    if props == []:
+        props = np.linspace(0, 1, len(color_classes))
     color_range = []
 
     for i in range(len(color_classes)):
@@ -188,8 +189,8 @@ def gen_layout(example = True, **kwargs):
 
 def plot(type, example = False, show_plot = False, **kwargs):
 
-    types = ['bar',    'scatter',    'line',    'heatmap',    'histogram',    'box',    'scattergeo']
-    funcs = [ bar,  scatter,  line,  heatmap,  histogram,  box,  scattergeo ]
+    types = ['bar','scatter','line','heatmap','histogram','box','scattergeo']
+    funcs = [ bar,   scatter,  line,  heatmap,  histogram,  box,  scattergeo ]
 
     try:
         ind = types.index(type)
