@@ -17,7 +17,9 @@ class Fig:
 
     def add_trace(self, new_trace, **kwargs):
         self.fig.add_trace(new_trace, **kwargs)
-        print (new_trace)
+
+    def update_traces(self, **kwargs):
+        self.fig.update_traces(**kwargs)
 
     def update_layout(self, example = False, **kwargs):
 
@@ -53,6 +55,8 @@ class Axis:
             self.template = dict(showgrid = False, zeroline = False, nticks = 20, showline = True, title = 'X AXIS', mirror = 'all')
         else:
             self.template = dict( **kwargs )
+
+        self.t = self.template
 
     def add(self, **kwargs):
         for i in kwargs:
@@ -143,6 +147,24 @@ class Color:
 
 
         self.color = color
+
+class Font:
+
+    def __init__(self, example = False, **kwargs):
+
+        if example:
+            self.template = dict(size = 16)
+        else:
+            self.template = dict( **kwargs )
+
+        self.t = self.template
+
+    def add(self, **kwargs):
+        for i in kwargs:
+            self.template[i] = kwargs[i]
+
+    def return_temp(self):
+        return self.template
 
 
 def get_colorway(type = 'rgb', n = 1, color_classes = []):
