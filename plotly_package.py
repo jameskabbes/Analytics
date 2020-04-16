@@ -52,7 +52,7 @@ class Axis:
     def __init__(self, example = False, **kwargs):
 
         if example:
-            self.template = dict(showgrid = False, zeroline = False, nticks = 20, showline = True, title = 'X AXIS', mirror = 'all')
+            self.template = dict(showgrid = False, zeroline = False, nticks = 20, showline = True, title = 'X AXIS', mirror = 'all', titlefont = Font(example = True).t)
         else:
             self.template = dict( **kwargs )
 
@@ -153,7 +153,7 @@ class Font:
     def __init__(self, example = False, **kwargs):
 
         if example:
-            self.template = dict(size = 16)
+            self.template = dict(family = 'Arial', size = 16)
         else:
             self.template = dict( **kwargs )
 
