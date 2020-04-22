@@ -1,5 +1,6 @@
 import plotly as pl
 import plotly.graph_objects as pgo
+import plotly.io as pio
 from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
@@ -42,6 +43,9 @@ class Fig:
     def save(self, filename = 'image.png', **kwargs):
         print ('saving file ' + str(filename))
         self.fig.write_image(filename, **kwargs)
+
+    def export_html(self, filename = 'index.html'):
+        pio.write_html(self.fig, file = filename)
 
     def export_dict(self):
         return self.fig.to_dict()
@@ -142,8 +146,6 @@ class Color:
             color = []
             for i in range(4):
                 color.append( random.choice(choices))
-
-        print (self.type)
 
 
         self.color = color
