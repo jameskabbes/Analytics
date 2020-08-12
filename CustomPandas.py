@@ -9,7 +9,7 @@ import seaborn as sns
 import collections
 #sorted
 import numpy as np
-from datetime import datetime
+import datetime
 import sys
 from dateutil.relativedelta import relativedelta
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
@@ -167,10 +167,10 @@ def split_df_into_equal_time(df, time_chunk, datetime_col, format = 'seconds'):
             new_time = time + datetime.timedelta(seconds = time_chunk)
 
         #filter where time < df < new_time
-        new_df = filter_df_by_dates(df, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = False)
+        new_df = filter_df_by_dates(df, datetime_col, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = False)
 
         if new_time >= end_time:
-            new_df = filter_df_by_dates(df, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = True)
+            new_df = filter_df_by_dates(df, datetime_col, lower_datetime = time, upper_datetime = new_time, low_inc = True, up_inc = True)
 
         time = new_time
         dfs.append(new_df)
@@ -216,7 +216,7 @@ def split_by_time_filter(df, how = 'hours', new_poss_values = []):
     return dfs
 
 
-def filter_df_by_dates(df,  date_col, date_col_dt, lower_datetime = None, upper_datetime = None, low_inc = True, up_inc = False):
+def filter_df_by_dates(df, date_col_dt, lower_datetime = None, upper_datetime = None, low_inc = True, up_inc = False):
 
     '''takes in a pandas df and returns one being filtered by lower and upper dates'''
 
